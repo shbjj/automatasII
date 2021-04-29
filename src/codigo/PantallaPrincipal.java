@@ -30,6 +30,8 @@ import javax.swing.JPanel;
  * @author hbdye
  */
 public class PantallaPrincipal extends javax.swing.JFrame {
+    
+    NumeroLinea numeroLinea;
 
     /**
      * Creates new form Hugp
@@ -43,6 +45,8 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(this);
         AWTUtilities.setWindowOpaque(this, false);
+        numeroLinea = new NumeroLinea(txtArea_CodigoDirecto);
+        jScrollPane1.setRowHeaderView(numeroLinea);
     }
 
     /**
