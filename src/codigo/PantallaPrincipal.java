@@ -68,6 +68,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         open = new javax.swing.JButton();
         save = new javax.swing.JButton();
         review = new javax.swing.JButton();
+        ll = new javax.swing.JScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -175,8 +176,13 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(save, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 412, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 412, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 412, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(39, 39, 39)
+                                .addComponent(ll, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addGap(19, 19, 19))
         );
         layout.setVerticalGroup(
@@ -190,14 +196,18 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                 .addComponent(open, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(review, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(save, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(33, Short.MAX_VALUE))
+                            .addComponent(save, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(ll, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
 
         pack();
@@ -262,17 +272,17 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                 }
                 switch (tokens) {
                     case ERROR:
-                        resultado += "Error, no valido '" + lexer.lexeme + "'\n";
+                        resultado += "Error, no valido '" + lexer.lexeme + "'"+"\tLinea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         break;
                     case Reservadas:
-                        resultado += lexer.lexeme + "\t" + tokens + "\n";
+                        resultado += lexer.lexeme + "\t" + tokens + "\tLinea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         break;
                     case Identificador:
                     case Numero:
-                        resultado += lexer.lexeme + "\t" + tokens + "\n";
+                        resultado += lexer.lexeme + "\t" + tokens + "\tLinea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         break;
                     case errorOdd:
-                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', tal vez quisiste decir " + "'odd'") == 0) {
+                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'odd'") == 0) {
                             lexer.lexeme = "odd";
                             //Cambiar el yylex, pendiente
                             resultado += lexer.lexeme + "\tReservadas\n";
@@ -281,7 +291,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                         }
                         break;
                     case errorConst:
-                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', tal vez quisiste decir " + "'const'") == 0) {
+                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'const'") == 0) {
                             lexer.lexeme = "const";
                             //Cambiar el yylex, pendiente
                             resultado += lexer.lexeme + "\tReservadas\n";
@@ -290,7 +300,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                         }
                         break;
                     case errorCall:
-                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', tal vez quisiste decir " + "'call'") == 0) {
+                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'call'") == 0) {
                             lexer.lexeme = "call";
                             //Cambiar el yylex, pendiente
                             resultado += lexer.lexeme + "\tReservadas\n";
@@ -299,7 +309,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                         }
                         break;
                     case errorThen:
-                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', tal vez quisiste decir " + "'then'") == 0) {
+                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'then'") == 0) {
                             lexer.lexeme = "then";
                             //Cambiar el yylex, pendiente
                             resultado += lexer.lexeme + "\tReservadas\n";
@@ -308,7 +318,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                         }
                         break;
                     case errorWhile:
-                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', tal vez quisiste decir " + "'while'") == 0) {
+                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'while'") == 0) {
                             lexer.lexeme = "while";
                             //Cambiar el yylex, pendiente
                             resultado += lexer.lexeme + "\tReservadas\n";
@@ -317,7 +327,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                         }
                         break;
                     case errorProcedure:
-                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', tal vez quisiste decir " + "'procedure'") == 0) {
+                        if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'procedure'") == 0) {
                             lexer.lexeme = "procedure";
                             //Cambiar el yylex, pendiente
                             resultado += lexer.lexeme + "\tReservadas\n";
@@ -326,16 +336,16 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                         }
                         break;
                     case errorIdentificador:
-                        JOptionPane.showMessageDialog(null, "Identificador mal escrito '" + lexer.lexeme + "', escribalo de nuevo");
+                        JOptionPane.showMessageDialog(null, "Identificador mal escrito '" + lexer.lexeme + "' en la linea: "+lexer.linea+", escribalo de nuevo");
                         resultado += "ERROR\tIdentificador mal escrito '" + lexer.lexeme + "'\n";
                         break;
                     case errorNumero:
-                        JOptionPane.showMessageDialog(null, "Número mal escrito '" + lexer.lexeme + "', escribalo de nuevo");
+                        JOptionPane.showMessageDialog(null, "Número mal escrito '" + lexer.lexeme + "' en la linea: "+lexer.linea+", escribalo de nuevo");
                         resultado += "ERROR\tNúmero mal escrito '" + lexer.lexeme + "'\n";
                         break;
                     case errorComentario:
-                        JOptionPane.showMessageDialog(null, "Comentario de tipo /* */ no cerrado");
-                        resultado += "ERROR\tComentario /* no cerrado\n";
+                        JOptionPane.showMessageDialog(null, "Comentario de tipo /* */ no cerrado  en la linea: "+lexer.linea+",");
+                        resultado += "ERROR\tComentario /* no cerrado  en la linea: "+lexer.linea+",\n";
                         break;
 
                     case MayorIgual:
@@ -352,10 +362,10 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                     case Diferente:
                     case Asignacion:
                     case Menos:
-                        resultado += lexer.lexeme + "\t" + tokens + "\n";
+                        resultado += lexer.lexeme + "\t" + tokens + "\tLinea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         break;
                     default:
-                        resultado += "Token: " + tokens + "\n";
+                        resultado += "Token: " + tokens + "\tLinea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                 }
             }
 
@@ -443,6 +453,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane ll;
     private javax.swing.JButton open;
     private javax.swing.JButton review;
     private javax.swing.JButton save;
