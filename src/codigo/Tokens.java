@@ -10,7 +10,23 @@ package codigo;
  * @author hbdye
  */
 public enum Tokens {
-    Reservadas,
+    
+    
+    
+    Const,
+    Var,
+    Procedure,
+    Call,
+    If,
+    Then,
+    While,
+    Do,
+    Odd,
+    End,
+    Begin,
+    Linea,
+    Parentesis_a,
+    Parentesis_c,
     MayorIgual,
     MenorIgual,
     Igual,

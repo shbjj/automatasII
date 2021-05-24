@@ -16,7 +16,7 @@ import static codigo.Tokens.*;
 L=[a-zA-Z]+
 D=[0-9]+
 Du=[0-9]
-espacio=[ \t\r\n]+
+espacio=[ \t\r]+
 
 //------------>Estados
 %{
@@ -30,18 +30,26 @@ espacio=[ \t\r\n]+
 /*--------------- 3ra Area: Reglas Lexicas----------------*/
 
 //------------> Simbolos
-const |
-var |
-procedure |
-call |
-if |
-then |
-while |
-do |
-odd {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return Reservadas;}
+const       {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return Const;}
+var         {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return Var;}
+procedure   {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return Procedure;}
+call        {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return Call;}
+if          {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return If;}
+then        {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return Then;}
+while       {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return While;}
+do          {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return Do;}
+odd         {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return Odd;}
+end         {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return End;}
+begin         {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return Begin;}
+
+
+
 {espacio} {/*Ignore*/}
 "//".* {/*Ignore*/}
+"\n" {return Linea;}
 (\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/)|(\/\/.*) {/*Ignore*/}
+"(" {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return Parentesis_a;}
+")" {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return Parentesis_c;}
 ">=" {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return MayorIgual;}
 "<=" {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return MenorIgual;}
 "=" {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return Igual;}
@@ -56,20 +64,29 @@ odd {lexeme = yytext(); linea=(yyline+1); columna=(yycolumn+1); return Reservada
 "-" {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return Menos;}
 "#" {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return Diferente;}
 ":=" {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return Asignacion;}
+/*--------------- Errores ----------------*/
 .dd | o.d | od. | ODD | oDD  | oDd | ODd  | "odd"{Du} {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorOdd;}
 .onst | c.nst |co.st | con.t | cons.  | CONST | CONSt | cONST | CoNST |  COnST | CONsT | "const"{Du} |
 CONst | COnsT | ConST | coNST | cONSt | cONsT | cOnST | CoNSt | CoNsT | COnSt | 
-COnst | ConsT | cONst | coNSt | conST | ConSt | ConSt | CoNst | cOnsT | cOnSt | coNsT | cosnt | conts {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorConst;}
+COnst | ConsT | cONst | coNSt | conST | ConSt | ConSt | CoNst | cOnsT | cOnSt | coNsT | cosnt | conts| cons 
+{lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorConst;}
+
 .all | c.ll | ca.l | cal. | "call"{Du} |
 CALL | CALl | CAlL | CaLL | cALL |
-cALl | cAlL | caLL | CaLl | CalL | CAll | cAlL | cALl {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorCall;}
+cALl | cAlL | caLL | CaLl | CalL | CAll | cAlL | cALl | cal
+{lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorCall;}
+
 .hen | t.en | th.n | the. | "then"{Du} |
 tehn | ten |
 THEN |
 THEn | THeN | ThEN | tHEN |
-tHEn | THen |  tHeN | thEN | ThEn | TheN  {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorThen;}
+tHEn | THen |  tHeN | thEN | ThEn | TheN | the
+{lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorThen;}
+
 .hile | w.ile | wh.le | whi.e  | whil. | "while"{Du} |
-WHILE | wile | wihle | wilhe {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorWhile;}
+WHILE | wile | wihle | wilhe | whil
+{lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorWhile;}
+
 .rocedure | p.ocedure | pr.cedure | pro.edure | proc.dure | proce.ure | proced.re | procedu.e |
  procedur. | PROCEDURE | .ROCEDURE | P.OCEDURE | PR.CEDURE | PRO.EDURE | PROC.DURE | PROCE.URE | 
 PROCED.RE | PROCEDU.E | PROCEDUR. | PRocedure | PrOcedure | ProCedure | ProcEdure | ProcEdure | 
@@ -82,11 +99,17 @@ PRoCEDURE | PROcEDURE | PROCeDURE | PROCEdURE | PROCEDuRE | PROCEDUrE | PROCEDUR
 PrOcEDURE | PrOCeDURE | PrOCEdURE | PrOCEDuRE | PrOCEDUrE | PrOCEDURe | PRocEDURE | PRoCeDURE | 
 PRoCEdURE | PRoCEDuRE | PRoCEDUrE | PRoCEDURe | PROceDURE | PROcEdURE | PROcEDuRE | PROcEDUrE | 
 PROcEDURe | PROCedURE | PROCeDuRE | PROCeDUrE | PROCeDURe | PROCEduRE | PROCEdUrE | PROCEdURe | 
-PROCEDurE | PROCEDuRe | PROCEDUre | "procedure"{Du}   {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1);  return errorProcedure;}
+PROCEDurE | PROCEDuRe | PROCEDUre | "procedure"{Du} 
+{lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1);  return errorProcedure;}
+
 "_"({L}|{D}|"_")+ | {D}+{L}+({L}|"_"|{D})* {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorIdentificador;}
-{D}+(".")+({D}|".")* {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorNumero;}
+
+{D}+(".")+({D}|"."|{L})* {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorNumero;}
+
 "/*"({L}|{D}|{espacio})* {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return errorComentario;}
+
 {L}({L}|{D}|"_")* {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return Identificador;}
+
 {D}+ {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return Numero;}
 
  . {lexeme=yytext();  linea=(yyline+1); columna=(yycolumn+1); return ERROR;}

@@ -1,0 +1,110 @@
+package codigo;
+
+import java_cup.runtime.Symbol;
+
+parser code
+{:
+    private Symbol s;
+    
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+
+    public Symbol getS(){
+        return this.s;
+}
+:};
+
+terminal Const, Var, Procedure, Call, If, Then, While, Do, Odd,
+    End, Begin,
+     Parentesis_a, Parentesis_c, MayorIgual, MenorIgual, Igual, Mayor, Menor, Coma,
+    PuntoComa, Punto, Asterisco, Diagonal, Mas, Menos, Diferente,
+    Asignacion, Identificador, Numero, ERROR;
+non terminal PROGRAMA, BLOQUE, INSTRUCCION, SUB_INSTRUCCION, DECLARACION_MULTIPLE, DECLARACION,
+REP_IDENTIFICADORES,
+CONDICION, EXPRESION,SUB_EXPRESION,  TERMINO,SUB_TERMINO, FACTOR
+;
+
+start with PROGRAMA;
+
+PROGRAMA ::= BLOQUE Punto
+;
+
+BLOQUE ::=  
+    Const DECLARACION  PuntoComa BLOQUE| 
+    Const DECLARACION_MULTIPLE  PuntoComa BLOQUE| 
+    Var Identificador PuntoComa BLOQUE |
+    Var Identificador REP_IDENTIFICADORES PuntoComa BLOQUE |
+    Procedure Identificador PuntoComa BLOQUE PuntoComa BLOQUE |
+    INSTRUCCION
+;
+
+REP_IDENTIFICADORES ::=
+    Coma Identificador |
+    Coma Identificador REP_IDENTIFICADORES
+;
+DECLARACION_MULTIPLE ::=  
+    DECLARACION Coma DECLARACION_MULTIPLE | 
+    DECLARACION Coma DECLARACION 
+;
+
+DECLARACION ::= Identificador Igual Numero
+;
+
+INSTRUCCION ::=
+    Identificador Asignacion EXPRESION |
+    Call Identificador |
+    Begin INSTRUCCION End |
+    Begin INSTRUCCION SUB_INSTRUCCION End |
+    If CONDICION Then INSTRUCCION |
+    While CONDICION Do INSTRUCCION |
+
+;
+
+SUB_INSTRUCCION ::=
+    PuntoComa INSTRUCCION |
+    PuntoComa INSTRUCCION SUB_INSTRUCCION
+;
+
+CONDICION ::= 
+    Odd EXPRESION |
+    EXPRESION Igual EXPRESION|
+    EXPRESION Diferente EXPRESION|
+    EXPRESION Menor EXPRESION|
+    EXPRESION Mayor EXPRESION|
+    EXPRESION MenorIgual EXPRESION|
+    EXPRESION MayorIgual EXPRESION
+    
+;
+
+
+
+EXPRESION ::=   TERMINO |
+                Mas TERMINO |
+                Menos TERMINO |
+                TERMINO SUB_EXPRESION |
+                Mas TERMINO SUB_EXPRESION|
+                Menos TERMINO SUB_EXPRESION
+;
+
+SUB_EXPRESION ::=   Mas TERMINO |
+                    Menos TERMINO |
+                    Mas TERMINO SUB_EXPRESION |
+                    Menos TERMINO SUB_EXPRESION
+;
+
+TERMINO ::= FACTOR |
+            FACTOR SUB_TERMINO 
+;
+
+SUB_TERMINO ::= Asterisco FACTOR |
+                Diagonal FACTOR |
+                Asterisco FACTOR SUB_TERMINO|
+                Diagonal FACTOR SUB_TERMINO
+;
+
+FACTOR ::=  Identificador |
+            Numero |
+            Parentesis_a EXPRESION Parentesis_c
+;
+

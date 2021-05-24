@@ -7,6 +7,7 @@ package codigo;
  */
 import codigo.Tokens;
 import com.sun.awt.AWTUtilities;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.io.BufferedReader;
@@ -17,13 +18,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java_cup.runtime.Symbol;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import jdk.nashorn.internal.runtime.regexp.joni.Syntax;
 
 /**
  *
@@ -68,7 +75,8 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         open = new javax.swing.JButton();
         save = new javax.swing.JButton();
         review = new javax.swing.JButton();
-        ll = new javax.swing.JScrollPane();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        sal = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -110,6 +118,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         txtArea_CodigoDirecto.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         jScrollPane1.setViewportView(txtArea_CodigoDirecto);
 
+        txtArea_CodigoAnalisisLexico.setEditable(false);
         txtArea_CodigoAnalisisLexico.setColumns(20);
         txtArea_CodigoAnalisisLexico.setRows(5);
         jScrollPane2.setViewportView(txtArea_CodigoAnalisisLexico);
@@ -143,6 +152,11 @@ public class PantallaPrincipal extends javax.swing.JFrame {
         save.setContentAreaFilled(false);
         save.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/imagen/save_big.png"))); // NOI18N
         save.setRolloverIcon(new javax.swing.ImageIcon(getClass().getResource("/imagen/save_small.png"))); // NOI18N
+        save.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveActionPerformed(evt);
+            }
+        });
 
         review.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagen/search_big.png"))); // NOI18N
         review.setContentAreaFilled(false);
@@ -153,6 +167,8 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                 reviewActionPerformed(evt);
             }
         });
+
+        jScrollPane3.setViewportView(sal);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -176,13 +192,10 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(save, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 412, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 412, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(39, 39, 39)
-                                .addComponent(ll, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+                            .addComponent(jScrollPane3))))
                 .addGap(19, 19, 19))
         );
         layout.setVerticalGroup(
@@ -202,11 +215,11 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(review, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(save, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 61, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(ll, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane3)))
                 .addContainerGap())
         );
 
@@ -249,11 +262,16 @@ public class PantallaPrincipal extends javax.swing.JFrame {
 
     private void reviewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reviewActionPerformed
         // TODO add your handling code here:
+       
+        
+        
         File archivo = new File("archivo.txt");
         PrintWriter escribir;
         try {
             escribir = new PrintWriter(archivo);
             escribir.print(txtArea_CodigoDirecto.getText());
+            txtArea_CodigoDirecto.requestFocus();
+            txtArea_CodigoDirecto.select(5, 6);
             escribir.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
@@ -274,65 +292,66 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                     case ERROR:
                         resultado += "Error, no valido '" + lexer.lexeme + "'"+"\tLinea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         break;
-                    case Reservadas:
-                        resultado += lexer.lexeme + "\t" + tokens + "\tLinea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
+                    case Linea:
                         break;
-                    case Identificador:
-                    case Numero:
+                    case Const: case Var: case Procedure: case Call: case If: case Then:case While:case Do:case Odd: case End:case Begin:
+                    resultado += lexer.lexeme + "\t" + "Reservada" + "\tLinea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
+                        break;
+                    case Identificador: case Numero:
                         resultado += lexer.lexeme + "\t" + tokens + "\tLinea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         break;
                     case errorOdd:
                         if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'odd'") == 0) {
                             lexer.lexeme = "odd";
                             //Cambiar el yylex, pendiente
-                            resultado += lexer.lexeme + "\tReservadas\n";
+                            resultado += lexer.lexeme + "\tReservadas"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         } else {
-                            resultado += lexer.lexeme + "\tIdentificador\n";
+                            resultado += lexer.lexeme + "\tIdentificador"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         }
                         break;
                     case errorConst:
                         if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'const'") == 0) {
                             lexer.lexeme = "const";
                             //Cambiar el yylex, pendiente
-                            resultado += lexer.lexeme + "\tReservadas\n";
+                            resultado += lexer.lexeme + "\tReservadas"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         } else {
-                            resultado += lexer.lexeme + "\tIdentificador\n";
+                            resultado += lexer.lexeme + "\tIdentificador"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         }
                         break;
                     case errorCall:
                         if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'call'") == 0) {
                             lexer.lexeme = "call";
                             //Cambiar el yylex, pendiente
-                            resultado += lexer.lexeme + "\tReservadas\n";
+                            resultado += lexer.lexeme + "\tReservadas"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         } else {
-                            resultado += lexer.lexeme + "\tIdentificador\n";
+                            resultado += lexer.lexeme + "\tIdentificador"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         }
                         break;
                     case errorThen:
                         if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'then'") == 0) {
                             lexer.lexeme = "then";
                             //Cambiar el yylex, pendiente
-                            resultado += lexer.lexeme + "\tReservadas\n";
+                            resultado += lexer.lexeme + "\tReservadas"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         } else {
-                            resultado += lexer.lexeme + "\tIdentificador\n";
+                            resultado += lexer.lexeme + "\tIdentificador"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         }
                         break;
                     case errorWhile:
                         if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'while'") == 0) {
                             lexer.lexeme = "while";
                             //Cambiar el yylex, pendiente
-                            resultado += lexer.lexeme + "\tReservadas\n";
+                            resultado += lexer.lexeme + "\tReservadas"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         } else {
-                            resultado += lexer.lexeme + "\tIdentificador\n";
+                            resultado += lexer.lexeme + "\tIdentificador"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         }
                         break;
                     case errorProcedure:
                         if (JOptionPane.showConfirmDialog(null, "Se recibio '" + lexer.lexeme + "', en la linea: "+lexer.linea+", tal vez quisiste decir " + "'procedure'") == 0) {
                             lexer.lexeme = "procedure";
                             //Cambiar el yylex, pendiente
-                            resultado += lexer.lexeme + "\tReservadas\n";
+                            resultado += lexer.lexeme + "\tReservadas"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         } else {
-                            resultado += lexer.lexeme + "\tIdentificador\n";
+                            resultado += lexer.lexeme + "\tIdentificador"+"\t Linea: "+lexer.linea+ "\tColumna: "+lexer.columna+"\n";
                         }
                         break;
                     case errorIdentificador:
@@ -341,13 +360,14 @@ public class PantallaPrincipal extends javax.swing.JFrame {
                         break;
                     case errorNumero:
                         JOptionPane.showMessageDialog(null, "Número mal escrito '" + lexer.lexeme + "' en la linea: "+lexer.linea+", escribalo de nuevo");
-                        resultado += "ERROR\tNúmero mal escrito '" + lexer.lexeme + "'\n";
+                        resultado += "ERROR\tNúmero mal escrito '" + lexer.lexeme + "'\tLinea: "+lexer.linea+"\n";
                         break;
                     case errorComentario:
                         JOptionPane.showMessageDialog(null, "Comentario de tipo /* */ no cerrado  en la linea: "+lexer.linea+",");
                         resultado += "ERROR\tComentario /* no cerrado  en la linea: "+lexer.linea+",\n";
                         break;
-
+                    case Parentesis_a:
+                    case Parentesis_c:
                     case MayorIgual:
                     case MenorIgual:
                     case Igual:
@@ -375,7 +395,29 @@ public class PantallaPrincipal extends javax.swing.JFrame {
             Logger.getLogger(PantallaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        //Proto
+        
+        //
     }//GEN-LAST:event_reviewActionPerformed
+
+    private void saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveActionPerformed
+        // TODO add your handling code here:
+        sal.setText("");
+        String temp="";
+        String ST=txtArea_CodigoDirecto.getText();
+        Sintax s= new Sintax(new codigo.LexerCup(new StringReader(ST)));
+        
+        try {
+            s.parse();
+            sal.setText("Analisis realizado correctamente");
+            sal.setForeground(new Color(25,111,61));
+        } catch (Exception ex) {
+            
+            Symbol sym= s.getS();
+            sal.setText("Error de sintaxis, Linea: "+(sym.right+1)+" Columna: "+(sym.left+1)+", Texto: \""+sym.value+"\"");
+            sal.setForeground(Color.red);
+        }
+    }//GEN-LAST:event_saveActionPerformed
 
     private void leerArchivo() {
         /*Sirve para elegir el archivo de texto y leerlo*/
@@ -406,7 +448,7 @@ public class PantallaPrincipal extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -438,13 +480,39 @@ public class PantallaPrincipal extends javax.swing.JFrame {
             }
         });
         String ruta = "src/codigo/Lexer.flex";
+        String ruta2 = "src/codigo/LexerCup.flex";
+        String [] rutaS={"-parser","Sintax","src/codigo/Sintax.cup"};
         //String ruta="C:/Users/hbdye/Documents/NetBeansProjects/prueba/src/codigo/Lexer.flex";
-        generarLexer(ruta);
+        generar(ruta, ruta2, rutaS);
     }
 
-    public static void generarLexer(String ruta) {
-        File archivo = new File(ruta);
+    public static void generar(String ruta1, String ruta2, String[] rutaS) throws IOException, Exception {
+        File archivo;
+        archivo= new File(ruta1);
         JFlex.Main.generate(archivo);
+        archivo=new File(ruta2);
+        JFlex.Main.generate(archivo);
+        java_cup.Main.main(rutaS);
+        
+        Path rutaSym=Paths.get("src/codigo/sym.java");
+        if(Files.exists(rutaSym))
+        {
+            Files.delete(rutaSym);
+        }
+        Files.move(
+        Paths.get("sym.java"),
+        Paths.get("src/codigo/sym.java")        
+        );
+        Path rutaSin=Paths.get("src/codigo/Sintax.java");
+        if(Files.exists(rutaSin))
+        {
+            Files.delete(rutaSin);
+        }
+        Files.move(
+        Paths.get("Sintax.java"),
+        Paths.get("src/codigo/Sintax.java")        
+        );
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -453,9 +521,10 @@ public class PantallaPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane ll;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JButton open;
     private javax.swing.JButton review;
+    private javax.swing.JTextPane sal;
     private javax.swing.JButton save;
     private javax.swing.JTextArea txtArea_CodigoAnalisisLexico;
     private javax.swing.JTextArea txtArea_CodigoDirecto;
